@@ -7,6 +7,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float moveSpeed = 8f;
     [SerializeField] private float acceleration = 50f;
     [SerializeField] private float deceleration = 40f;
+    [SerializeField] private Transform visualRoot;
 
     [Header("Jump")]
     [SerializeField] private float jumpForce = 16f;
@@ -34,6 +35,8 @@ public class PlayerMovement : MonoBehaviour
     public bool IsGrounded { get; private set; }
     public bool IsDashing => isDashing;
     public float VerticalVelocity => body.velocity.y;
+    public float DashDuration => dashDuration;
+    public float FacingDirection { get; private set; } = 1f;
 
     private void Awake()
     {
@@ -72,6 +75,7 @@ public class PlayerMovement : MonoBehaviour
     public void SetMoveInput(Vector2 input)
     {
         moveInput = input;
+        UpdateFacing(input.x);
     }
 
     public void RequestJump()
@@ -127,5 +131,19 @@ public class PlayerMovement : MonoBehaviour
         }
 
         IsGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer) != null;
+    }
+
+    private void UpdateFacing(float horizontal)
+    {
+        if (Mathf.Abs(horizontal) <= 0.01f)
+        {
+            return;
+        }
+
+        FacingDirection = Mathf.Sign(horizontal);
+        Transform target = visualRoot != null ? visualRoot : transform;
+        Vector3 scale = target.localScale;
+        scale.x = Mathf.Abs(scale.x) * FacingDirection;
+        target.localScale = scale;
     }
 }

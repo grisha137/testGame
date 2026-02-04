@@ -6,6 +6,8 @@ public class PlayerController : MonoBehaviour
 {
     [SerializeField] private WeaponController weaponController;
     [SerializeField] private AnimationController animationController;
+    [SerializeField] private float dashInvulnerabilityBuffer = 0.05f;
+    [SerializeField] private float hurtInvulnerabilityDuration = 0.35f;
 
     public InputManager Input => InputManager.Instance;
     public PlayerMovement Movement { get; private set; }
@@ -13,6 +15,9 @@ public class PlayerController : MonoBehaviour
     public HealthSystem Health { get; private set; }
     public AnimationController Animation => animationController;
     public PlayerStateMachine StateMachine { get; private set; }
+    public bool IsInvulnerable => Time.time < invulnerableUntil;
+    public float DashInvulnerabilityBuffer => dashInvulnerabilityBuffer;
+    public float HurtInvulnerabilityDuration => hurtInvulnerabilityDuration;
 
     public IdleState IdleState { get; private set; }
     public RunState RunState { get; private set; }
@@ -22,6 +27,8 @@ public class PlayerController : MonoBehaviour
     public AttackState AttackState { get; private set; }
     public HurtState HurtState { get; private set; }
     public DeathState DeathState { get; private set; }
+
+    private float invulnerableUntil;
 
     private void Awake()
     {
@@ -44,6 +51,11 @@ public class PlayerController : MonoBehaviour
     private void Start()
     {
         StateMachine.Initialize(IdleState);
+    }
+
+    private void OnDestroy()
+    {
+        Health.Died -= OnDeath;
     }
 
     private void Update()
@@ -71,20 +83,39 @@ public class PlayerController : MonoBehaviour
     {
         Movement.ResetMovement();
         Health.Initialize(Health.MaxHealth);
+        Weapon?.ResetCombo();
+        invulnerableUntil = 0f;
         StateMachine.ChangeState(IdleState);
     }
 
     public void ApplyDamage(float amount)
     {
+        if (IsInvulnerable)
+        {
+            return;
+        }
+
         Health.TakeDamage(amount);
         if (!Health.IsDead)
         {
+            SetInvulnerable(hurtInvulnerabilityDuration);
             StateMachine.ChangeState(HurtState);
         }
     }
 
+    public void SetInvulnerable(float duration)
+    {
+        if (duration <= 0f)
+        {
+            return;
+        }
+
+        invulnerableUntil = Mathf.Max(invulnerableUntil, Time.time + duration);
+    }
+
     private void OnDeath()
     {
+        Weapon?.ResetCombo();
         StateMachine.ChangeState(DeathState);
     }
 }

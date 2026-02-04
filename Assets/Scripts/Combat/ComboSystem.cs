@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class ComboSystem
@@ -5,6 +6,9 @@ public class ComboSystem
     private int comboIndex;
     private float lastAttackTime;
     private AttackData lastAttackData;
+
+    public int CurrentComboCount { get; private set; }
+    public event Action<int> ComboChanged;
 
     public AttackData GetNextAttack(WeaponData weaponData)
     {
@@ -19,15 +23,23 @@ public class ComboSystem
             if (Time.time - lastAttackTime > comboWindow)
             {
                 comboIndex = 0;
+                CurrentComboCount = 1;
             }
             else
             {
                 comboIndex = (comboIndex + 1) % weaponData.attacks.Length;
+                CurrentComboCount = Mathf.Clamp(CurrentComboCount + 1, 1, weaponData.attacks.Length);
             }
+        }
+        else
+        {
+            comboIndex = 0;
+            CurrentComboCount = 1;
         }
 
         AttackData next = weaponData.attacks[comboIndex];
         lastAttackData = next;
+        ComboChanged?.Invoke(CurrentComboCount);
         return next;
     }
 
@@ -36,10 +48,26 @@ public class ComboSystem
         lastAttackTime = timeStamp;
     }
 
+    public bool IsComboExpired(float currentTime)
+    {
+        if (lastAttackData == null || CurrentComboCount <= 0)
+        {
+            return false;
+        }
+
+        float comboWindow = Mathf.Max(0.05f, lastAttackData.comboWindow);
+        return currentTime - lastAttackTime > comboWindow;
+    }
+
     public void ResetCombo()
     {
         comboIndex = 0;
         lastAttackTime = 0f;
         lastAttackData = null;
+        if (CurrentComboCount != 0)
+        {
+            CurrentComboCount = 0;
+            ComboChanged?.Invoke(CurrentComboCount);
+        }
     }
 }

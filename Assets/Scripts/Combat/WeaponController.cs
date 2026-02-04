@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class WeaponController : MonoBehaviour
@@ -10,12 +11,24 @@ public class WeaponController : MonoBehaviour
     private float attackEndTime;
 
     public bool IsAttacking { get; private set; }
+    public int CurrentComboCount => comboSystem != null ? comboSystem.CurrentComboCount : 0;
+    public event Action<int> ComboChanged;
 
     private void Awake()
     {
         if (comboSystem == null)
         {
             comboSystem = new ComboSystem();
+        }
+
+        comboSystem.ComboChanged += HandleComboChanged;
+    }
+
+    private void OnDestroy()
+    {
+        if (comboSystem != null)
+        {
+            comboSystem.ComboChanged -= HandleComboChanged;
         }
     }
 
@@ -24,6 +37,11 @@ public class WeaponController : MonoBehaviour
         if (IsAttacking && Time.time >= attackEndTime)
         {
             FinishAttack();
+        }
+
+        if (!IsAttacking && comboSystem != null && comboSystem.IsComboExpired(Time.time))
+        {
+            comboSystem.ResetCombo();
         }
     }
 
@@ -56,6 +74,21 @@ public class WeaponController : MonoBehaviour
         }
     }
 
+    public void ResetCombo()
+    {
+        if (comboSystem != null)
+        {
+            comboSystem.ResetCombo();
+        }
+
+        if (damageDealer != null)
+        {
+            damageDealer.DisableHitbox();
+        }
+
+        IsAttacking = false;
+    }
+
     private void FinishAttack()
     {
         IsAttacking = false;
@@ -65,5 +98,10 @@ public class WeaponController : MonoBehaviour
         }
 
         comboSystem.NotifyAttackComplete(Time.time);
+    }
+
+    private void HandleComboChanged(int comboCount)
+    {
+        ComboChanged?.Invoke(comboCount);
     }
 }

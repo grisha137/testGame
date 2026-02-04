@@ -29,7 +29,7 @@ public class JumpState : PlayerState
             return;
         }
 
-        if (Player.Input != null && Player.Input.DashPressed)
+        if (Player.Input != null && Player.Input.DashPressed && Player.Movement.CanDash())
         {
             StateMachine.ChangeState(Player.DashState);
             return;

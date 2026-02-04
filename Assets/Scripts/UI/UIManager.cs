@@ -6,6 +6,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private ComboCounter comboCounter;
 
     private HealthSystem playerHealth;
+    private WeaponController playerWeapon;
 
     private void Start()
     {
@@ -13,12 +14,19 @@ public class UIManager : MonoBehaviour
         if (player != null)
         {
             playerHealth = player.GetComponent<HealthSystem>();
+            playerWeapon = player.GetComponentInChildren<WeaponController>();
         }
 
         if (playerHealth != null)
         {
             playerHealth.HealthChanged += OnHealthChanged;
             OnHealthChanged(playerHealth.CurrentHealth, playerHealth.MaxHealth);
+        }
+
+        if (playerWeapon != null)
+        {
+            playerWeapon.ComboChanged += OnComboChanged;
+            OnComboChanged(playerWeapon.CurrentComboCount);
         }
     }
 
@@ -27,6 +35,11 @@ public class UIManager : MonoBehaviour
         if (playerHealth != null)
         {
             playerHealth.HealthChanged -= OnHealthChanged;
+        }
+
+        if (playerWeapon != null)
+        {
+            playerWeapon.ComboChanged -= OnComboChanged;
         }
     }
 
@@ -38,7 +51,7 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    public void SetComboCount(int combo)
+    private void OnComboChanged(int combo)
     {
         if (comboCounter != null)
         {

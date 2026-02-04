@@ -9,8 +9,9 @@ public class DashState : PlayerState
         Player.Animation?.Play("Dash");
         Vector2 direction = Player.Input != null && Player.Input.MoveInput != Vector2.zero
             ? Player.Input.MoveInput
-            : new Vector2(Player.transform.localScale.x >= 0f ? 1f : -1f, 0f);
+            : new Vector2(Player.Movement.FacingDirection, 0f);
         Player.Movement.StartDash(direction);
+        Player.SetInvulnerable(Player.Movement.DashDuration + Player.DashInvulnerabilityBuffer);
     }
 
     public override void HandleInput()

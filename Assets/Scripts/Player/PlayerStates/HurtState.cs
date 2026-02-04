@@ -11,6 +11,7 @@ public class HurtState : PlayerState
     {
         Player.Animation?.Play("Hurt");
         recoverTime = Time.time + hurtDuration;
+        Player.SetInvulnerable(Player.HurtInvulnerabilityDuration);
     }
 
     public override void LogicUpdate()

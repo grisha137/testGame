@@ -7,21 +7,35 @@ public class DamageReceiver : MonoBehaviour
 
     private HealthSystem healthSystem;
     private Rigidbody2D body;
+    private PlayerController playerController;
 
     private void Awake()
     {
         healthSystem = GetComponent<HealthSystem>();
         body = GetComponent<Rigidbody2D>();
+        playerController = GetComponent<PlayerController>();
     }
 
     public void ApplyDamage(float amount, Vector2 sourcePosition)
     {
-        if (healthSystem == null)
+        if (playerController != null)
         {
-            return;
-        }
+            if (playerController.IsInvulnerable)
+            {
+                return;
+            }
 
-        healthSystem.TakeDamage(amount);
+            playerController.ApplyDamage(amount);
+        }
+        else
+        {
+            if (healthSystem == null || healthSystem.IsDead)
+            {
+                return;
+            }
+
+            healthSystem.TakeDamage(amount);
+        }
 
         if (body != null)
         {

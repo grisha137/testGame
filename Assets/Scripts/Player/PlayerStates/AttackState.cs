@@ -2,10 +2,13 @@ using UnityEngine;
 
 public class AttackState : PlayerState
 {
+    private bool queuedAttack;
+
     public AttackState(PlayerController player, PlayerStateMachine stateMachine) : base(player, stateMachine) { }
 
     public override void Enter()
     {
+        queuedAttack = false;
         Player.Animation?.Play("Attack");
         Player.Weapon?.StartAttack();
     }
@@ -15,6 +18,10 @@ public class AttackState : PlayerState
         if (Player.Input != null)
         {
             Player.Movement.SetMoveInput(Player.Input.MoveInput);
+            if (Player.Input.AttackPressed)
+            {
+                queuedAttack = true;
+            }
         }
     }
 
@@ -22,6 +29,13 @@ public class AttackState : PlayerState
     {
         if (Player.Weapon != null && Player.Weapon.IsAttacking)
         {
+            return;
+        }
+
+        if (queuedAttack && Player.Weapon != null)
+        {
+            queuedAttack = false;
+            Player.Weapon.StartAttack();
             return;
         }
 

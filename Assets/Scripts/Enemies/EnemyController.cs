@@ -29,7 +29,7 @@ public class EnemyController : MonoBehaviour
 
     public void Move(Vector2 direction)
     {
-        if (health.IsDead)
+        if (health.IsDead || enemyData == null)
         {
             return;
         }
@@ -43,6 +43,11 @@ public class EnemyController : MonoBehaviour
 
     public void Attack()
     {
+        if (enemyData == null)
+        {
+            return;
+        }
+
         if (damageDealer != null)
         {
             damageDealer.SetDamage(enemyData.damage);
