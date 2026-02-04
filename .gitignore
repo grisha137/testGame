@@ -1,0 +1,41 @@
+# Unity
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Uu]ser[Ss]ettings/
+[Ll]ogs/
+[Mm]emoryCaptures/
+
+# Asset meta data should be kept
+!/[Aa]ssets/**/*.meta
+
+# Rider
+.idea/
+*.sln
+*.csproj
+*.user
+*.pidb
+*.unityproj
+*.suo
+*.tmp
+*.userprefs
+*.DS_Store
+
+# Visual Studio
+.vs/
+
+# Unity Package Manager
+Packages/manifest.json
+Packages/packages-lock.json
+
+# Crash reports
+sysinfo.txt
+
+# Build artifacts
+*.apk
+*.aab
+*.app
+*.exe
+*.dll
