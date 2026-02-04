@@ -6,6 +6,7 @@ public class PlayerController : MonoBehaviour
 {
     [SerializeField] private WeaponController weaponController;
     [SerializeField] private AnimationController animationController;
+    [SerializeField] private CharacterData characterData;
     [SerializeField] private float dashInvulnerabilityBuffer = 0.05f;
     [SerializeField] private float hurtInvulnerabilityDuration = 0.35f;
 
@@ -35,6 +36,12 @@ public class PlayerController : MonoBehaviour
         Movement = GetComponent<PlayerMovement>();
         Health = GetComponent<HealthSystem>();
         StateMachine = new PlayerStateMachine();
+
+        if (characterData != null)
+        {
+            Movement.ApplyCharacterData(characterData);
+            Health.Initialize(characterData.maxHealth);
+        }
 
         IdleState = new IdleState(this, StateMachine);
         RunState = new RunState(this, StateMachine);

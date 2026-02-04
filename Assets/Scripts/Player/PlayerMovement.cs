@@ -43,6 +43,24 @@ public class PlayerMovement : MonoBehaviour
         body = GetComponent<Rigidbody2D>();
     }
 
+    public void ApplyCharacterData(CharacterData data)
+    {
+        if (data == null)
+        {
+            return;
+        }
+
+        moveSpeed = data.moveSpeed;
+        acceleration = data.acceleration;
+        deceleration = data.deceleration;
+        jumpForce = data.jumpForce;
+        coyoteTime = data.coyoteTime;
+        jumpBufferTime = data.jumpBufferTime;
+        dashSpeed = data.dashSpeed;
+        dashDuration = data.dashDuration;
+        dashCooldown = data.dashCooldown;
+    }
+
     private void Update()
     {
         UpdateGrounded();
